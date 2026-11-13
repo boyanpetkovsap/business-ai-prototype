@@ -129,6 +129,19 @@
   }
   .company-select:hover { background: var(--hover); }
   .company-select .under { border-bottom: 1px solid var(--border2); padding-bottom: 2px; }
+  .company-wrap { position: relative; }
+  .company-menu {
+    position: absolute; top: calc(100% + 6px); left: 0; z-index: 50;
+    background: var(--white); border: 1px solid var(--border); border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(34,54,84,.16); padding: 6px; min-width: 210px;
+  }
+  .company-menu button {
+    display: block; width: 100%; text-align: left; background: none; border: none;
+    font: inherit; font-size: 14px; color: var(--text); padding: 11px 14px; border-radius: 6px; cursor: pointer;
+  }
+  .company-menu button:hover { background: var(--hover); }
+  .company-menu button.sel { font-weight: 600; }
+  .company-backdrop { position: fixed; inset: 0; z-index: 40; }
   .ph-assist { margin-left: auto; }
   .btn-ghost-outline {
     border: 1px solid var(--link); color: var(--link); background: var(--white); border-radius: 8px;
@@ -352,9 +365,9 @@ function LineChart() {
   const monthFull = [null, "May 2026", "June 2026", "July 2026", "August 2026", null];
   const Y = v => padT + plotH - (v / maxY) * plotH;
   const series = [
-    { key:"bulgaria", name:"Bosch Bulgaria", color: "#8b47d7", dash: false, pts: [0, 20000, 38000, 33000, 50000, 50000] },
-    { key:"germany", name:"Bosch Germany", color: "#c87b00", dash: false, pts: [0, 7000, 30000, 10000, 17000, 17000] },
-    { key:"romania", name:"Bosch Romania", color: "#049f9a", dash: true, pts: [0, 38000, 50000, 40000, 33000, 33000] },
+    { key:"bulgaria", name:"Scott Electronics Bulgaria", color: "#8b47d7", dash: false, pts: [0, 20000, 38000, 33000, 50000, 50000] },
+    { key:"germany", name:"Scott Electronics Germany", color: "#c87b00", dash: false, pts: [0, 7000, 30000, 10000, 17000, 17000] },
+    { key:"romania", name:"Scott Electronics Romania", color: "#049f9a", dash: true, pts: [0, 38000, 50000, 40000, 33000, 33000] },
   ];
   const grid = [0, 10000, 20000, 30000, 40000, 50000, 60000];
   const [hover, setHover] = useState(null); // {si, pi}
@@ -560,12 +573,12 @@ function Overview() {
           <span className="num-cap">Total AI-Units Consumed</span>
         </div>
         <div className="divider"></div>
-        <div style={{padding:'10px 20px 0', fontSize:12, color:'var(--label)'}}>Bosch Global AI-Units per customer</div>
+        <div style={{padding:'10px 20px 0', fontSize:12, color:'var(--label)'}}>Scott Electronics Global AI-Units per customer</div>
         <div style={{padding:'4px 10px 8px'}}><LineChart /></div>
         <div className="legend">
-          <span className="li"><span className="mk" style={{borderColor:'var(--c-purple)'}}></span>Bosch Bulgaria</span>
-          <span className="li"><span className="mk" style={{borderColor:'var(--c-orange)'}}></span>Bosch Germany</span>
-          <span className="li"><span className="mk" style={{borderColor:'var(--c-teal)', borderStyle:'dashed'}}></span>Bosch Romania</span>
+          <span className="li"><span className="mk" style={{borderColor:'var(--c-purple)'}}></span>Scott Electronics Bulgaria</span>
+          <span className="li"><span className="mk" style={{borderColor:'var(--c-orange)'}}></span>Scott Electronics Germany</span>
+          <span className="li"><span className="mk" style={{borderColor:'var(--c-teal)', borderStyle:'dashed'}}></span>Scott Electronics Romania</span>
         </div>
         <div style={{height:12}}></div>
       </div>
@@ -1057,6 +1070,9 @@ function App() {
   const initial = ACTIVE_TABS.includes(decodeURIComponent(location.hash.slice(1))) ? decodeURIComponent(location.hash.slice(1)) : "Overview";
   const [tab, setTabState] = useState(initial);
   const setTab = (t) => { setTabState(t); location.hash = encodeURIComponent(t); };
+  const COMPANIES = ["Scott Electronics Global", "Scott Electronics Bulgaria", "Scott Electronics Germany", "Scott Electronics Romania"];
+  const [company, setCompany] = useState("Scott Electronics Global");
+  const [companyOpen, setCompanyOpen] = useState(false);
   return (
     <div>
       <div className="shellbar">
@@ -1090,7 +1106,20 @@ function App() {
             <div className="ph-top">
               <span className="ph-title">Business AI</span>
               <span className="ph-sep">|</span>
-              <button className="company-select"><span className="under">Bosch Global</span> {I.caretDown}</button>
+              <div className="company-wrap">
+                <button className="company-select" onClick={()=>setCompanyOpen(o=>!o)}>
+                  <span className="under">{company}</span> {I.caretDown}
+                </button>
+                {companyOpen && (
+                  <div className="company-menu">
+                    {COMPANIES.map(c=>(
+                      <button key={c} className={c===company?"sel":""}
+                        onClick={()=>{ setCompany(c); setCompanyOpen(false); }}>{c}</button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {companyOpen && <div className="company-backdrop" onClick={()=>setCompanyOpen(false)} />}
               <div className="ph-assist"><button className="btn-ghost-outline">Get Assistance</button></div>
             </div>
             <div className="tabs">
